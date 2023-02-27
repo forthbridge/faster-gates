@@ -16,12 +16,12 @@ namespace FasterGates
         public static Configurable<int> gateSpeed = instance.config.Bind("gateOpeningSpeed", 300, new ConfigurableInfo(
             "How quickly gates open relative to normal. 100% is normal." +
             "\nHigher is faster, lower is slower.",
-            new ConfigAcceptableRange<int>(10, 1000), "", "Gate Opening Speed Modifier"));
+            new ConfigAcceptableRange<int>(10, 1000), "", "Gate Opening Speed Multiplier"));
 
         public static Configurable<int> waitTime = instance.config.Bind("waitTime", 100, new ConfigurableInfo(
-            "How long the gate waits to start opening relative to normal. 100% is normal." +
+            "How long gates wait to start opening relative to normal. 100% is normal." +
             "\nHigher is longer, lower is shorter.",
-            new ConfigAcceptableRange<int>(10, 1000), "", "Gate Wait Time Modifier"));
+            new ConfigAcceptableRange<int>(10, 1000), "", "Gate Wait Time Multiplier"));
 
         #endregion
 
