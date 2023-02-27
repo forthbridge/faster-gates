@@ -1,4 +1,4 @@
-## Provides a Remix config menu for both the gate opening speed and the amount of time needed to wait for the gate to open!
+## Provides a Remix config menu for both gate opening speed and the amount of time needed to wait for gates to start opening!
 
 ## Manual Installation
 1. Download the latest ZIP archive from releases
