@@ -1,0 +1,12 @@
+{
+	"id": "fastergates",
+	"name": "Faster Gates",
+	"version": "1.0.0",
+	"target_game_version": "v1.9.06",
+	"authors": "forthbridge",
+	"description": "Speeds up the gate opening animation. Configurable via remix!",
+	"requirements": [],
+	"requirements_names": [],
+	"tags": ["Tools"],
+	"checksum_override_version": false
+}
