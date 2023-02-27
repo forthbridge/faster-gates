@@ -27,6 +27,7 @@ namespace FasterGates
             On.RegionGateGraphics.Clamp.ctor += Clamp_ctor;
         }
 
+        // Closing the clamps uses the fric value
         private static void Clamp_ctor(On.RegionGateGraphics.Clamp.orig_ctor orig, RegionGateGraphics.Clamp self, RegionGateGraphics.DoorGraphic doorG, int side, int number)
         {
             orig(self, doorG, side, number);
@@ -34,6 +35,7 @@ namespace FasterGates
             self.fric *= (Options.gateSpeed.Value / 100.0f);
         }
 
+        // Thankfully the door itself has easily modifiable speed attributes
         private static void Door_ctor(On.RegionGate.Door.orig_ctor orig, RegionGate.Door self, RegionGate gate, int number)
         {
             orig(self, gate, number);
@@ -42,9 +44,11 @@ namespace FasterGates
             self.openSpeed *= (Options.gateSpeed.Value / 100.0f);
         }
 
+        // Keep track of the frames
         private static Dictionary<RegionGate, float> floatStartCounters = new Dictionary<RegionGate, float>();
         private static Dictionary<RegionGate, float> floatWashingCounters = new Dictionary<RegionGate, float>();
 
+        // Override the normal frame addition - we use a float to count them up and truncate into an int to add to the buffer
         private static void RegionGate_Update(On.RegionGate.orig_Update orig, RegionGate self, bool eu)
         {
             if (self.startCounter == 0) floatStartCounters[self] = 0;
@@ -52,6 +56,7 @@ namespace FasterGates
 
             orig(self, eu);
 
+            // Delay Before Start
             if (self.mode == RegionGate.Mode.MiddleClosed)
             {
                 int num = self.PlayersInZone();
@@ -76,6 +81,7 @@ namespace FasterGates
                 }
             }
 
+            // Gate Opening Itself
             if (self.mode == RegionGate.Mode.Waiting)
             {
                 if (self.washingCounter > 1) self.washingCounter--;
@@ -113,6 +119,8 @@ namespace FasterGates
             }
         }
 
+        // Opening the clamps is hardcoded, default is 3.6f
+        // It uses the fric value but is then immediately overwritten, classic Joar code I guess?
         private static void Clamp_Update(ILContext il)
         {
             ILCursor c = new ILCursor(il);

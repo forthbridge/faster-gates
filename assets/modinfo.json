@@ -4,9 +4,9 @@
 	"version": "1.0.0",
 	"target_game_version": "v1.9.06",
 	"authors": "forthbridge",
-	"description": "Speeds up the gate opening animation. Configurable via remix!",
+	"description": "Provides a Remix config menu for both gate opening speed and the amount of time needed to wait for gates to start opening!<LINE><LINE>Source: https://github.com/forthbridge/faster-gates",
 	"requirements": [],
 	"requirements_names": [],
-	"tags": ["Tools"],
+	"tags": ["Game Mechanics", "Accessibility"],
 	"checksum_override_version": false
 }
