@@ -169,7 +169,7 @@ namespace FasterGates
         {
             orig(self, sLeaser, rCam, timeStacker, camPos);
 
-            if (self.player?.room?.regionGate == null)
+            if (self.player?.room != null && self.player?.room.regionGate == null)
                 foreach (var sound in rCam.virtualMicrophone.soundObjects.Where(sound =>
                     sound.soundData.soundID == SoundID.Gate_Bolt || sound.soundData.soundID == SoundID.Gate_Clamps_Moving_LOOP
                     || sound.soundData.soundID == SoundID.Gate_Clamp_Back_Into_Default || sound.soundData.soundID == SoundID.Gate_Clamp_Collision
