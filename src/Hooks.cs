@@ -56,7 +56,7 @@ namespace FasterGates
 
 
 
-        private static float GateSpeed => Options.instantGates.Value ? float.MaxValue / 2.0f : (Options.gateSpeed.Value / 100.0f);
+        private static float GateSpeed => Options.instantGates.Value ? 1000.0f : (Options.gateSpeed.Value / 100.0f);
 
         // Thankfully the door itself has easily modifiable speed attributes
         private static void Door_ctor(On.RegionGate.Door.orig_ctor orig, RegionGate.Door self, RegionGate gate, int number)
@@ -91,18 +91,13 @@ namespace FasterGates
         // Override the normal frame addition - we use a float to count them up and truncate into an int to add to the timer
         private static void RegionGate_Update(On.RegionGate.orig_Update orig, RegionGate self, bool eu)
         {
-            if (!RegionGateData.TryGetValue(self, out RegionGateModule regionGateModule))
-                regionGateModule = new RegionGateModule();
-
-            if (self.startCounter == 0)
-                regionGateModule.startTimer = 0.0f;
-            
-            if (self.washingCounter == 0)
-                regionGateModule.washingTimer = 0.0f;
-
-
-
             orig(self, eu);
+         
+            if (!RegionGateData.TryGetValue(self, out RegionGateModule regionGateModule))
+            {
+                regionGateModule = new RegionGateModule();
+                RegionGateData.Add(self, regionGateModule);
+            }
 
 
 
@@ -117,34 +112,41 @@ namespace FasterGates
 
                     if (!self.dontOpen && self.PlayersStandingStill() && self.EnergyEnoughToOpen && self.MeetRequirement && (gateKarmaGlyph.ShouldAnimate() == 0 || gateKarmaGlyph.animationFinished))
                     {
-                        if (self.startCounter > 1)
-                            self.startCounter--;
-
+                        self.startCounter--;
                         regionGateModule.startTimer += 1.0f / (Options.waitTime.Value / 100.0f);
 
                         if (regionGateModule.startTimer >= 1.0f)
                         {
                             int difference = (int)regionGateModule.startTimer;
-                            regionGateModule.startTimer -= difference;
 
+                            regionGateModule.startTimer -= difference;
                             self.startCounter += difference;
                         }
                     }
+                    else
+                    {
+                        regionGateModule.startTimer = 0.0f;
+                        regionGateModule.washingTimer = 0.0f;
+                    }
+                }
+                else
+                {
+                    regionGateModule.startTimer = 0.0f;
+                    regionGateModule.washingTimer = 0.0f;
                 }
             }
 
             // Gate Opening Itself
             else if (self.mode == RegionGate.Mode.Waiting)
             {
-                if (self.washingCounter > 1) self.washingCounter--;
-
+                self.washingCounter--;
                 regionGateModule.washingTimer += GateSpeed;
 
                 if (regionGateModule.washingTimer >= 1.0f)
                 {
                     int difference = (int)regionGateModule.washingTimer;
-                    regionGateModule.washingTimer -= difference;
 
+                    regionGateModule.washingTimer -= difference;
                     self.washingCounter += difference;
                 }
             }
