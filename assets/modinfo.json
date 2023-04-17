@@ -3,7 +3,7 @@
 	"name": "Faster Gates",
 	"version": "1.0.1",
 	"authors": "forthbridge",
-	"description": "Provides a Remix config menu for both gate opening speed and the amount of time needed to wait for gates to start opening!<LINE><LINE>Source: https://github.com/forthbridge/faster-gates",
+	"description": "Provides a Remix config menu for both gate opening speed and the amount of time needed to wait for gates to start opening!<LINE><LINE>Only affects the animation itself! May still be limited by region loading time.<LINE><LINE>Source: https://github.com/forthbridge/faster-gates",
 	"requirements": [],
 	"requirements_names": [],
 	"tags": ["Game Mechanics", "Accessibility"],

@@ -1,6 +1,7 @@
 [h1]Provides a Remix config menu for both gate opening speed and the amount of time needed to wait for gates to start opening![/h1]
 
-[h1]Configure the speed from the default 300% all the way up to 1000% of normal![/h1]
-[b](should hopefully satistfy Rivulet players for at least 10 seconds)[/b]
+[b][u]Only affects the animation itself![/u]
 
-[b][u]Source: https://github.com/forthbridge/faster-gates[/u][/b]
+The time a gate takes to finish opening is still limited by how long it takes to load the destination region, however this usually takes less than a second.[/b]
+
+[u][b]Source: https://github.com/forthbridge/faster-gates[/b][/u]
