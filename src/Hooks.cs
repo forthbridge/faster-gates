@@ -1,6 +1,7 @@
 ﻿using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
@@ -17,8 +18,11 @@ namespace FasterGates
             On.RegionGate.Door.ctor += Door_ctor;
 
             On.RegionGateGraphics.Clamp.ctor += Clamp_ctor;
+
             On.RegionGateGraphics.DrawSprites += RegionGateGraphics_DrawSprites;
+            On.PlayerGraphics.DrawSprites += PlayerGraphics_DrawSprites;
         }
+
 
 
         private static bool isInit = false;
@@ -52,14 +56,15 @@ namespace FasterGates
 
 
 
+        private static float GateSpeed => Options.instantGates.Value ? float.MaxValue / 2.0f : (Options.gateSpeed.Value / 100.0f);
 
         // Thankfully the door itself has easily modifiable speed attributes
         private static void Door_ctor(On.RegionGate.Door.orig_ctor orig, RegionGate.Door self, RegionGate gate, int number)
         {
             orig(self, gate, number);
-            
-            self.closeSpeed *= (Options.gateSpeed.Value / 100.0f);
-            self.openSpeed *= (Options.gateSpeed.Value / 100.0f);
+
+            self.closeSpeed *= GateSpeed;
+            self.openSpeed *= GateSpeed;
         }
 
         // Closing the clamps uses the fric value
@@ -67,7 +72,7 @@ namespace FasterGates
         {
             orig(self, doorG, side, number);
 
-            self.fric *= (Options.gateSpeed.Value / 100.0f);
+            self.fric *= GateSpeed;
         }
         
 
@@ -133,7 +138,7 @@ namespace FasterGates
             {
                 if (self.washingCounter > 1) self.washingCounter--;
 
-                regionGateModule.washingTimer += Options.gateSpeed.Value / 100.0f;
+                regionGateModule.washingTimer += GateSpeed;
 
                 if (regionGateModule.washingTimer >= 1.0f)
                 {
@@ -146,16 +151,38 @@ namespace FasterGates
         }
 
 
+
+       
         // 'Fix' sound persisting after gate is closed or the room is left
         private static void RegionGateGraphics_DrawSprites(On.RegionGateGraphics.orig_DrawSprites orig, RegionGateGraphics self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, UnityEngine.Vector2 camPos)
         {
             orig(self,sLeaser, rCam, timeStacker, camPos);
 
-            if (!self.gate.room.BeingViewed || self.gate.mode == RegionGate.Mode.Closed)
-            {
+            if (self.gate.mode == RegionGate.Mode.Closed)
                 foreach (var sound in rCam.virtualMicrophone.soundObjects.Where(sound => sound.soundData.soundID == SoundID.Gate_Secure_Rail_Down || sound.soundData.soundID == SoundID.Gate_Secure_Rail_Up))
                     sound.Stop();
-            }
+        }
+        
+        private static void PlayerGraphics_DrawSprites(On.PlayerGraphics.orig_DrawSprites orig, PlayerGraphics self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, UnityEngine.Vector2 camPos)
+        {
+            orig(self, sLeaser, rCam, timeStacker, camPos);
+
+            if (self.player?.room?.regionGate == null)
+                foreach (var sound in rCam.virtualMicrophone.soundObjects.Where(sound =>
+                    sound.soundData.soundID == SoundID.Gate_Bolt || sound.soundData.soundID == SoundID.Gate_Clamps_Moving_LOOP
+                    || sound.soundData.soundID == SoundID.Gate_Clamp_Back_Into_Default || sound.soundData.soundID == SoundID.Gate_Clamp_Collision
+                    || sound.soundData.soundID == SoundID.Gate_Clamp_In_Position || sound.soundData.soundID == SoundID.Gate_Clamp_Lock
+                    || sound.soundData.soundID == SoundID.Gate_Electric_Background_LOOP || sound.soundData.soundID == SoundID.Gate_Electric_Screw_Turning_LOOP
+                    || sound.soundData.soundID == SoundID.Gate_Electric_Steam_LOOP || sound.soundData.soundID == SoundID.Gate_Electric_Steam_Puff
+                    || sound.soundData.soundID == SoundID.Gate_Panser_Off || sound.soundData.soundID == SoundID.Gate_Panser_On
+                    || sound.soundData.soundID == SoundID.Gate_Pillows_In_Place || sound.soundData.soundID == SoundID.Gate_Pillows_Move_In
+                    || sound.soundData.soundID == SoundID.Gate_Pillows_Move_Out || sound.soundData.soundID == SoundID.Gate_Poles_And_Rails_In
+                    || sound.soundData.soundID == SoundID.Gate_Poles_Out || sound.soundData.soundID == SoundID.Gate_Rails_Collide
+                    || sound.soundData.soundID == SoundID.Gate_Secure_Rail_Slam || sound.soundData.soundID == SoundID.Gate_Water_Screw_Turning_LOOP
+                    || sound.soundData.soundID == SoundID.Gate_Water_Steam_LOOP || sound.soundData.soundID == SoundID.Gate_Water_Steam_Puff
+                    || sound.soundData.soundID == SoundID.Gate_Water_Waterfall_LOOP || sound.soundData.soundID == SoundID.Gate_Water_Working_Background_LOOP
+                    || sound.soundData.soundID == SoundID.Gate_Secure_Rail_Down || sound.soundData.soundID == SoundID.Gate_Secure_Rail_Up))
+                    sound.Stop();
         }
 
 
@@ -188,7 +215,7 @@ namespace FasterGates
             c.Index++;
 
             c.Emit(OpCodes.Ldarg_0);
-            c.EmitDelegate<Func<float, RegionGate, float>>((interpolation, self) => interpolation * (Options.gateSpeed.Value / 100.0f));
+            c.EmitDelegate<Func<float, RegionGate, float>>((interpolation, self) => interpolation * GateSpeed);
         }
 
         // Flow rate of water, progress of battery
@@ -200,7 +227,7 @@ namespace FasterGates
                 x => x.MatchCallOrCallvirt<WaterGate>(nameof(WaterGate.WaterRunning))))
             {
                 c.Emit(OpCodes.Ldarg_0);
-                c.EmitDelegate<Func<float, WaterGate, float>>((flow, self) => flow * (Options.gateSpeed.Value / 100.0f));
+                c.EmitDelegate<Func<float, WaterGate, float>>((flow, self) => flow * GateSpeed);
                 c.Index++;
             }
         }
@@ -213,7 +240,7 @@ namespace FasterGates
                 x => x.MatchCallOrCallvirt<ElectricGate>(nameof(ElectricGate.BatteryRunning))))
             {
                 c.Emit(OpCodes.Ldarg_0);
-                c.EmitDelegate<Func<float, ElectricGate, float>>((flow, self) => flow * (Options.gateSpeed.Value / 100.0f));
+                c.EmitDelegate<Func<float, ElectricGate, float>>((flow, self) => flow * GateSpeed);
                 c.Index++;
             }
         }

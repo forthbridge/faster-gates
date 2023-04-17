@@ -23,6 +23,10 @@ namespace FasterGates
             "\nHigher is longer, lower is shorter.",
             new ConfigAcceptableRange<int>(10, 1000), "", "Gate Wait Time Multiplier"));
 
+        public static Configurable<bool> instantGates = instance.config.Bind("instantGates", false, new ConfigurableInfo(
+            "Overrides the Gate Opening Speed Multiplier and makes gate opening effectively instant.",
+            null, "", "Instant Gates?"));
+
         #endregion
 
         #region Parameters
@@ -30,11 +34,18 @@ namespace FasterGates
         private readonly float spacing = 20f;
         private readonly float fontHeight = 20f;
 
+        private readonly int numberOfCheckboxes = 2;
+        private readonly float checkBoxSize = 60.0f;
+        private float CheckBoxWithSpacing => checkBoxSize + 0.25f * spacing;
+
 
         private Vector2 marginX = new();
         private Vector2 pos = new();
 
         private readonly List<float> boxEndPositions = new();
+
+        private readonly List<Configurable<bool>> checkBoxConfigurables = new();
+        private readonly List<OpLabel> checkBoxesTextLabels = new();
 
         private readonly List<Configurable<int>> sliderConfigurables = new();
         private readonly List<string> sliderMainTextLabels = new();
@@ -59,11 +70,17 @@ namespace FasterGates
             AddSlider(waitTime, (string)waitTime.info.Tags[0], "10%", "1000%");
             DrawSliders(ref Tabs[tabIndex]);
 
-            AddNewLine(14);
+            AddCheckBox(instantGates, (string)instantGates.info.Tags[0]);
+            DrawCheckBoxes(ref Tabs[tabIndex]);
+
+            AddNewLine(11);
             DrawBox(ref Tabs[tabIndex]);
         }
 
+
+
         #region UI Elements
+
         private void AddTab(ref int tabIndex, string tabName)
         {
             tabIndex++;
@@ -120,6 +137,55 @@ namespace FasterGates
             sliderMainTextLabels.Add(text);
             sliderTextLabelsLeft.Add(new OpLabel(new Vector2(), new Vector2(), sliderTextLeft, alignment: FLabelAlignment.Right)); // set pos and size when drawing
             sliderTextLabelsRight.Add(new OpLabel(new Vector2(), new Vector2(), sliderTextRight, alignment: FLabelAlignment.Left));
+        }
+
+        private void AddCheckBox(Configurable<bool> configurable, string text)
+        {
+            checkBoxConfigurables.Add(configurable);
+            checkBoxesTextLabels.Add(new OpLabel(new Vector2(), new Vector2(), text, FLabelAlignment.Left));
+        }
+
+        private void DrawCheckBoxes(ref OpTab tab) // changes pos.y but not pos.x
+        {
+            if (checkBoxConfigurables.Count != checkBoxesTextLabels.Count) return;
+
+            float width = marginX.y - marginX.x;
+            float elementWidth = (width - (numberOfCheckboxes - 1) * 0.5f * spacing) / numberOfCheckboxes;
+            pos.y -= checkBoxSize;
+            float _posX = pos.x;
+
+            for (int checkBoxIndex = 0; checkBoxIndex < checkBoxConfigurables.Count; ++checkBoxIndex)
+            {
+                Configurable<bool> configurable = checkBoxConfigurables[checkBoxIndex];
+                OpCheckBox checkBox = new(configurable, new Vector2(_posX, pos.y))
+                {
+                    description = configurable.info?.description ?? ""
+                };
+                tab.AddItems(checkBox);
+                _posX += CheckBoxWithSpacing;
+
+                OpLabel checkBoxLabel = checkBoxesTextLabels[checkBoxIndex];
+                checkBoxLabel.pos = new Vector2(_posX, pos.y + 2f);
+                checkBoxLabel.size = new Vector2(elementWidth - CheckBoxWithSpacing, fontHeight);
+                tab.AddItems(checkBoxLabel);
+
+                if (checkBoxIndex < checkBoxConfigurables.Count - 1)
+                {
+                    if ((checkBoxIndex + 1) % numberOfCheckboxes == 0)
+                    {
+                        AddNewLine();
+                        pos.y -= checkBoxSize;
+                        _posX = pos.x;
+                    }
+                    else
+                    {
+                        _posX += elementWidth - CheckBoxWithSpacing + 0.5f * spacing;
+                    }
+                }
+            }
+
+            checkBoxConfigurables.Clear();
+            checkBoxesTextLabels.Clear();
         }
 
         private void DrawSliders(ref OpTab tab)
