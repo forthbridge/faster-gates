@@ -1,7 +1,7 @@
 {
 	"id": "fastergates",
 	"name": "Faster Gates",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"authors": "forthbridge",
 	"description": "Provides a Remix config menu for both gate opening speed and the amount of time needed to wait for gates to start opening!<LINE><LINE>Source: https://github.com/forthbridge/faster-gates",
 	"requirements": [],
