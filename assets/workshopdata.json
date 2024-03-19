@@ -1,0 +1,17 @@
+{
+  "Title": "Faster Gates",
+  "Description": "Provides a Remix config menu for both gate opening speed and the amount of time needed to wait for gates to start opening!\u003CLINE\u003E\u003CLINE\u003EOnly affects the animation itself! May still be limited by region loading time.\u003CLINE\u003E\u003CLINE\u003ESource: https://github.com/forthbridge/faster-gates",
+  "ID": "fastergates",
+  "Version": "1.1.0",
+  "TargetGameVersion": "v1.9.14",
+  "Requirements": "",
+  "RequirementNames": "",
+  "Authors": "forthbridge",
+  "Visibility": "Public",
+  "Tags": [
+    "Game Mechanics",
+    "Accessibility"
+  ],
+  "WorkshopID": 2939831468,
+  "UploadFilesOnly": true
+}
