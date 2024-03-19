@@ -1,30 +1,32 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
+using System.Runtime.CompilerServices;
 using System.Security.Permissions;
 using System.Security;
 
 #pragma warning disable CS0618 // Type or member is obsolete
+[assembly: IgnoresAccessChecksTo("Assembly-CSharp")]
 [assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
 [module: UnverifiableCode]
 #pragma warning restore CS0618 // Type or member is obsolete
 
+namespace FasterGates;
 
-namespace FasterGates
+[BepInPlugin(MOD_ID, MOD_ID, "1.0.0")]
+
+public class Plugin : BaseUnityPlugin
 {
-    [BepInPlugin(AUTHOR + "." + MOD_ID, MOD_NAME, VERSION)]
-    internal class Plugin : BaseUnityPlugin
+    public const string MOD_ID = "fastergates";
+
+    public static string MOD_NAME = "";
+    public static string VERSION = "";
+    public static string AUTHORS = "";
+
+    public static new ManualLogSource Logger { get; private set; } = null!;
+
+    public void OnEnable()
     {
-        public static new ManualLogSource Logger { get; private set; } = null!;
-
-        public const string VERSION = "1.0.1";
-        public const string MOD_NAME = "Faster Gates";
-        public const string MOD_ID = "fastergates";
-        public const string AUTHOR = "forthbridge";
-
-        public void OnEnable()
-        {
-            Logger = base.Logger;
-            Hooks.ApplyHooks();
-        }
+        Logger = base.Logger;
+        Hooks.ApplyInit();
     }
 }
